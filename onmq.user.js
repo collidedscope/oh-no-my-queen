@@ -45,6 +45,8 @@ const observer = new MutationObserver(() => {
 });
 
 if ($('.main-board').length) {
-  const taken = $('.material-top')[0];
-  observer.observe(taken, {childList: true, subtree: true});
+  setTimeout(() => {
+    const taken = $('.material-top')[0];
+    observer.observe(taken, {childList: true, subtree: true});
+  }, 1000);
 }
