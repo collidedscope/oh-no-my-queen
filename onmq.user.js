@@ -1,11 +1,15 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.2
+// @version      0.2.1
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
 // @require      https://cdnjs.cloudflare.com/ajax/libs/chess.js/0.12.0/chess.min.js
 // ==/UserScript==
+
+// When we lose our Queen and can't immediately retaliate, we resign if
+// our opponent is now ahead by at least this many points of material.
+const IMBALANCE_TOLERANCE = 5;
 
 const game = new Chess();
 const mo_config = {childList: true, subtree: true};
@@ -46,7 +50,8 @@ const move_watcher = new MutationObserver(mutations => {
   const node = mutations.pop().addedNodes[0];
   if (game.move(node.innerText)?.captured == 'q' // some Queen captured
       && $('.rclock-bottom.running').length      // and our turn to move
-      && !(can_equalize() || can_checkmate()))   // and all hope is lost
+      && !(can_equalize() || can_checkmate())    // and we can't retaliate
+      && $('.material-top score').text() >= IMBALANCE_TOLERANCE)
     you_resign_now();
 });
 
