@@ -20,7 +20,7 @@ const on_exist = (selector, rate, timeout, callback) => {
     const found = $(selector);
     if (found.length || performance.now() - start > timeout) {
       clearInterval(poller);
-      callback(found);
+      if (found.length) callback(found);
     }
   }, rate);
 };
@@ -57,8 +57,6 @@ const move_watcher = new MutationObserver(mutations => {
 
 if ($('.main-board').length) {
   on_exist('.buttons', 10, 1000, b => {
-    if (!b.length) return;
-
     if (b.next().hasClass('message'))
       // At the start of the game, the element we want to watch for new moves
       // doesn't exist yet, so watch for mutations on the parent until it does.
