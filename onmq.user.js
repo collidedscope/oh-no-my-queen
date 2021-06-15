@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.2.1
+// @version      0.2.2
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
@@ -10,6 +10,9 @@
 // When we lose our Queen and can't immediately retaliate, we resign if
 // our opponent is now ahead by at least this many points of material.
 const IMBALANCE_TOLERANCE = 5;
+
+// message to send while resigning
+const PARTING_WORDS = "Oh no, my Queen!"
 
 const game = new Chess();
 const mo_config = {childList: true, subtree: true};
@@ -35,6 +38,11 @@ const can_checkmate = () => game.moves().forEach(move => {
 });
 
 const you_resign_now = () => {
+  if (PARTING_WORDS) {
+    let chat = $('.mchat__say')[0];
+    chat.value = PARTING_WORDS;
+    chat.dispatchEvent(new KeyboardEvent('keydown', {key: 'Enter'}));
+  }
   $('.resign')[0].click();
   $('.yes')[0].click();
 };
