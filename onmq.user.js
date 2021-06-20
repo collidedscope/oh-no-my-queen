@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.2.2
+// @version      0.2.3
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
@@ -63,7 +63,7 @@ const move_watcher = new MutationObserver(mutations => {
     you_resign_now();
 });
 
-if ($('.main-board').length) {
+if ($('.main-board').length && !document.title.includes(' spectator ')) {
   on_exist('.buttons', 10, 1000, b => {
     if (b.next().hasClass('message'))
       // At the start of the game, the element we want to watch for new moves
