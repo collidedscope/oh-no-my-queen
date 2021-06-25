@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.2.5
+// @version      0.2.6
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
@@ -63,22 +63,19 @@ const move_watcher = new MutationObserver(mutations => {
     you_resign_now();
 });
 
-const insert_disable_button = () => {
-  const disable = document.createElement('button');
-  disable.innerText = '♛';
-  disable.classList.add('fbt');
-  disable.title = 'Disable ONMQ';
-  disable.addEventListener('click', function() {
-    this.remove();
-    move_watcher.disconnect();
-  });
-  $('.ricons')[0].appendChild(disable);
-};
+const disable = document.createElement('button');
+disable.innerText = '♛';
+disable.classList.add('fbt');
+disable.title = 'Disable ONMQ';
+disable.addEventListener('click', function() {
+  this.remove();
+  move_watcher.disconnect();
+});
 
 if ($('.main-board').length && !document.title.includes(' spectator ')) {
-  on_exist('.buttons', 10, 1000, b => {
-    insert_disable_button();
+  on_exist('.ricons', 10, 1000, e => e.append(disable));
 
+  on_exist('.buttons', 10, 1000, b => {
     if (b.next().hasClass('message'))
       // At the start of the game, the element we want to watch for new moves
       // doesn't exist yet, so watch for mutations on the parent until it does.
