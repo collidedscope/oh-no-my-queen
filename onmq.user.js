@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.2.6
+// @version      0.3
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
@@ -64,15 +64,19 @@ const move_watcher = new MutationObserver(mutations => {
 });
 
 const disable = document.createElement('button');
+const disable_onmq = () => {
+  disable.remove();
+  move_watcher.disconnect();
+};
+
 disable.innerText = '♛';
 disable.classList.add('fbt');
 disable.title = 'Disable ONMQ';
-disable.addEventListener('click', function() {
-  this.remove();
-  move_watcher.disconnect();
-});
+disable.addEventListener('click', disable_onmq);
 
 if ($('.main-board').length && !document.title.includes(' spectator ')) {
+  document.onkeyup = e => e.key == 'q' && disable_onmq();
+
   on_exist('.ricons', 10, 1000, e => e.append(disable));
 
   on_exist('.buttons', 10, 1000, b => {
