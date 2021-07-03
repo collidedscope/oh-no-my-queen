@@ -11,5 +11,4 @@ With a [userscript manager](https://www.tampermonkey.net/) installed, visiting [
 ## Roadmap
 
 - [ ] Support servers other than lichess
-- [ ] Provide button to toggle instead of (or in addition to?) disable
 - [x] Resign only if the material imbalance is sufficiently high?

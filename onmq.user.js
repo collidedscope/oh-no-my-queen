@@ -1,6 +1,6 @@
 // ==UserScript==
 // @name         Oh No, My Queen!
-// @version      0.3.1
+// @version      0.4
 // @description  Automatically resign when you lose your Queen, unless you can equalize or win on this turn.
 // @author       Collided Scope
 // @include      https://lichess.org/*
@@ -47,11 +47,13 @@ const you_resign_now = () => {
   $('.yes')[0].click();
 };
 
+let movelist;
+
 const move_init = new MutationObserver((mutations, mo) => {
   mo.disconnect();
-  const moves = mutations[0].addedNodes[0];
-  game.move(moves.childNodes[1].innerText); // extract and play first move
-  move_watcher.observe(moves, mo_config);
+  movelist = mutations[0].addedNodes[0];
+  game.move(movelist.childNodes[1].innerText); // extract and play first move
+  move_watcher.observe(movelist, mo_config);
 });
 
 const move_watcher = new MutationObserver(mutations => {
@@ -63,22 +65,26 @@ const move_watcher = new MutationObserver(mutations => {
     you_resign_now();
 });
 
-const disable = document.createElement('button');
-const disable_onmq = () => {
-  disable.remove();
-  move_watcher.disconnect();
+const toggle = document.createElement('button');
+const toggle_onmq = () => {
+  const enabled = toggle.innerText == '🨐';
+  toggle.innerText = enabled ? '♛' : '🨐';
+  if (enabled)
+    move_watcher.disconnect();
+  else
+    move_watcher.observe(movelist, mo_config);
 };
 
-disable.innerText = '♛';
-disable.classList.add('fbt');
-disable.title = 'Disable ONMQ';
-disable.addEventListener('click', disable_onmq);
+toggle.innerText = '🨐';
+toggle.classList.add('fbt');
+toggle.title = 'Toggle ONMQ';
+toggle.addEventListener('click', toggle_onmq);
 
 if ($('.main-board').length) {
-  document.onkeyup = e => e.key == 'q' && disable_onmq();
+  document.onkeyup = e => e.key == 'q' && toggle_onmq();
 
   on_exist('.ricons', 10, 1000, e => {
-    e.append(disable);
+    e.append(toggle);
     const b = $('.buttons');
 
     if (b.next().hasClass('message'))
@@ -89,7 +95,7 @@ if ($('.main-board').length) {
       // game is in progress; load moves and set up watcher
       const plies = b.next().children().not(':nth-child(3n+1)');
       plies.each((_, e) => game.move(e.innerText));
-      move_watcher.observe(b.next()[0], mo_config);
+      move_watcher.observe(movelist = b.next()[0], mo_config);
     }
   });
 }
